@@ -29,7 +29,25 @@ nbaData[is.na(nbaData$Conference) & (nbaData$Team %in% western), ]$Conference = 
 
 # Calculate the BMI of all players
 
-# First we will want to any data t
+# How many NAs exist in the weight column?
+sum(is.na(nbaData$Weight))
+
+# Need to clean up the Players who have missing weights.
+# Some of the players that are missing might have previously showed up in the list and won't have missing weights.
+# Let's see if we can fill in some of those missing weights before incorporating any outside data.
+
+for(i in 1:dim(nbaData)[1]) {
+  if(is.na(nbaData$Weight[i])) {
+    if(nbaData$Player[i] %in% nbaData[!(is.na(nbaData$Weight)), ]$Player) {
+      nbaData$Weight[i] = nbaData[!(is.na(nbaData$Weight)) & nbaData$Player == nbaData$Player[i], ]$Weight[1]
+    }
+  } 
+}
+# How many NAs still exist?
+sum(is.na(nbaData$Weight))
+# We have seen a drastic improvement, and now there are only 17 NAs.
+
+# First we will want to convert Height to inches, and change any heights that re in feet-inches
 convertHeight = function(height) {
   if(grepl('cm', height)) {
     return(as.numeric(gsub('cm', '', height)) * 0.394)
@@ -61,8 +79,9 @@ nbaData[nbaData$Position == "C", ]$Position = "Center"
 
 
 # Colors for different positions in graph
-viridis_pal(option = "D")(length(unique(nbaData$Position)))
-
+colors = viridis_pal(option = "D")(length(unique(nbaData$Position)))
+cols_df = data_frame(colors, unique(nbaData$Position))
+names(cols_df) = c("Colors", "Position")
 
 
 # What physical attributes correspond to players who tend to get elected to the player of the week?
@@ -70,7 +89,7 @@ left_join(nbaData %>%
             select(Position, HeightIN, Weight, BMI) %>%
             group_by(Position) %>%
             melt(id = 'Position'),
-          COL, by = 'Position')
+          cols_df, by = 'Position')
 
 
 
