@@ -4,6 +4,7 @@ library(ggplot2)
 library(stringi)
 library(reshape2)
 library(viridis)
+library(searcher)
 
 # Reading in the NBA Player of The Week Data
 nbaData = read_csv("~/Desktop/Projects/NBA-Player-Of-The-Week/Data/NBA_player_of_the_week.csv")
@@ -46,6 +47,14 @@ for(i in 1:dim(nbaData)[1]) {
 # How many NAs still exist?
 sum(is.na(nbaData$Weight))
 # We have seen a drastic improvement, and now there are only 17 NAs.
+# For the players that are remaining, we will perform manual entry for their weights since it is a small number.
+missing_weights = c(265, 216, 249, 209, 181, 238, 249, 214, 249, 234, 249, 207, 214, 227, 249, 240, 214)
+nbaData[is.na(nbaData$Weight), ]$Weight = missing_weights
+
+# After manual input, how many are missing still? 
+sum(is.na(nbaData$Weight))
+# 0 are missing. Now we can continue with calculating BMIs
+
 
 # First we will want to convert Height to inches, and change any heights that re in feet-inches
 convertHeight = function(height) {
@@ -113,3 +122,7 @@ qplot(nbaData$Age,
       alpha = I(.2))
 
 
+
+library(ballr)
+players <- NBAPerGameAdvStatistics(season = 2018)
+players
