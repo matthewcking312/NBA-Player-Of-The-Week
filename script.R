@@ -5,6 +5,7 @@ library(stringi)
 library(reshape2)
 library(viridis)
 library(searcher)
+library(lubridate)
 
 # Reading in the NBA Player of The Week Data
 nbaData = read_csv("~/Desktop/Projects/NBA-Player-Of-The-Week/Data/NBA_player_of_the_week.csv")
@@ -99,6 +100,15 @@ left_join(nbaData %>%
             group_by(Position) %>%
             melt(id = 'Position'),
           cols_df, by = 'Position')
+
+# Let's adjust the dates into specific columns. 
+dateFun = function(x) {
+  oldDate = strsplit(x, ',')[[1]]
+  year = trimws(oldDate[2])
+  month = match(substr(oldDate[1], 0, 3), month.abb)
+  day = strsplit(oldDate[1], ' ')[[1]][2]
+  return(paste0(day))
+}
 
 
 
